@@ -1,0 +1,6 @@
+SELECT
+    LEFT(T1.ID_VANTIVE, CHARINDEX('.', T1.ID_VANTIVE + '.') - 1) AS ID_VANTIVE,
+    STATUS
+FROM
+    VANTIVE.dbo.VANTIVE AS T1
+    where LEFT(T1.ID_VANTIVE, CHARINDEX('.', T1.ID_VANTIVE + '.') - 1) = {{id_comercial}}

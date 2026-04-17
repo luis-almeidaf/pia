@@ -1,0 +1,822 @@
+import stateModule from "../core/state.js";
+
+const CARIMBOS = {
+  NORMALIZADO: `ENCERRAMENTO: NORMALIZADO COM CLIENTE
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+
+CARIMBO#PIA`,
+  DIAGNOSTICO_CLIENTE_NAO_LOCALIZADO: `INTERFACE CLIENTE NÃO LOCALIZADA, ENVIADO AO DIAGNÓSTICO PARA VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_POSSIVEL_MASSIVA: `INTERFACE DOWN, NÃO LOCALIZADO MANOBRA, ENVIADO AO DIAGNÓSTICO PARA VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_SEM_ACESSO_CPE: `CONECTIVIDADE ENTRE BACKBONE E CPE OK, PORÉM SEM ACESSO AO CPE
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_NOK_SEM_ACESSO_CPE: `CONECTIVIDADE ENTRE BACKBONE E CPE NOK, NÍVEL DE SINAL OLT X ONT OK, PORÉM SEM ACESSO AO CPE
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_CPE_CLIENTE: `CLIENTE INFORMA LINK INTERRROMPIDO, CONECTIVIDADE ENTRE BACKBONE E CPE OK, PORÉM ROUTER CLIENTE
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_CPE_FALHA_PING_SERVICO: `LINK OK ATÉ O CPE, PORÉM PING PARA INTERNET/PONTA REMOTA NÃO OK
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_CPE_FALHA_LAN_CLIENTE: `LINK OK ATÉ O CPE, PORÉM NÃO SOBE A REDE INTERNA DO CLIENTE, CLIENTE NÃO ACEITA O DIAGNÓSTICO
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  SEM_CONTATO: `TENTATIVA DE CONTATO COM O CLIENTE SEM SUCESSO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  AGENDAR_RETORNO: `CLIENTE SOLICITA RETORNO <HORARIO_AGENDADO>
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  RECLAMACAO_NAO_TRATADA_VIA_REPARO: `RECLAMAÇÃO/SOLICITAÇÃO DO CLIENTE NÃO É TRATADA VIA REPARO
+Orientado a acionar comercial
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ENCERRAR_BD_FALHA_REDE_INTERNA: `LINK OK ATÉ O CPE, FALHA REDE INTERNA, CONTATADO CLIENTE
+Irá verificar internamente
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ENCERRAR_BD_FALHA_DG: `ONT COM ALARME DE DYING GASP ATIVO, CLIENTE CIENTE IRÁ VERIFICAR, CHAMADO ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_DG_SEM_CONTATO: `ONT SEM SINCRONISMO, COM ALARME DE DYING GASP ATIVO, TENTATIVAS DE CONTATO COM CLIENTE PARA VERIFICAR SEM SUCESSO, SOLICITADO APOIO GI SEM SUCESSO, FAVOR GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_DG_NAO_ACEITA: `ONT SEM SINCRONISMO, COM ALARME DE DYING GASP ATIVO, CONTATADO CLIENTE, PORÉM O MESMO EXIGE TÉCNICO NO LOCAL
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ENCERRAR_BD_OK_ATE_CPE: `LINK OK ATÉ O CPE, VALIDADO COM CLIENTE, BD ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA: `LINK OK ATÉ O CPE, PORÉM CLIENTE INFORMA QUE CONTINUA INTERROMPIDO
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA_2: `LINK OK ATÉ O CPE, PORÉM CLIENTE INFORMA QUE AINDA ESTÁ DEGRADADO
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_LINK_DEGRADADO: `ACESSO OK ATÉ O CPE, PORÉM TESTE DE CONECTIDADE COM INTERNET/PONTA REMOTA DEGRADADO
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  MASSIVA: `CLIENTE ENVOLVIDO EM TA, ENVIADO AO MASSIVA
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Massiva
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  MASSIVA_OLT: `CLIENTE ENVOLVIDO EM TA DE OLT, ENVIADO AO MASSIVA
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Massiva
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  MASSIVA_SWD_SWA: `CLIENTE ENVOLVIDO EM TA DE SWD/SWA, ENVIADO AO MASSIVA
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Massiva
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  POSSIVEL_MASSIVA_SWD_SWA: `SWD/SWA ISOLADO, SEM TA ATIVA
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>`,
+  POSSIVEL_MASSIVA_OLT: `OLT ISOLADA, SEM TA ATIVA
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_SEM_POSICAO_OLT: `CONECTIVIDADE NOK, ACESSO OLT OK, PORÉM NÃO LOCALIZADO CLIENTE
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_SEM_POSICAO_SWD_SWA: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORÉM NÃO LOCALIZADO CLIENTE
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_PON_DOWN_SEM_TA: `CONECTIVIDADE NOK, ACESSO OLT OK, CLIENTE LOCALIZADO, PORÉM PORTA PON DOWN, SEM TA ATIVA
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_PON_DOWN: `CONECTIVIDADE NOK, ACESSO OLT OK, CLIENTE LOCALIZADO, PORÉM PORTA PON DOWN, ENVOLVIDO EM TA
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Massiva
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ONT_SEM_SINCRONISMO: `CONECTIVIDADE NOK, ACESSO OLT OK, CLIENTE LOCALIZADO, PORTA PON UP, ONT CLIENTE SEM SINCRONISMO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ONT_SEM_SINCRONISMO_DG: `CONECTIVIDADE NOK, ACESSO OLT OK, CLIENTE LOCALIZADO, PORTA PON UP, ONT CLIENTE SEM SINCRONISMO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_SW_DOWN_CLIENTE_NAO: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, CLIENTE LOCALIZADO, PORTA DE CONEXÃO COM O CLIENTE DOWN, CLIENTE NÃO PODE VERIFICAR O EQUIPAMENTO, TX/SWT_FIBRA_FSP VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_SW_UP_CLIENTE_NAO: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, CLIENTE LOCALIZADO, PORTA DE CONEXÃO COM O CLIENTE UP, CLIENTE NÃO PODE VERIFICAR O EQUIPAMENTO, TX/SWT_FIBRA_FSP VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_SW_UP_CLIENTE_SIM: `CONECTIVIDADE ESTAVA NOK, ACESSO SWD/SWA OK, CLIENTE LOCALIZADO, PORTA DE CONEXÃO COM O CLIENTE UP, CLIENTE RESETOU OS EQUIPAMENTOS, LINK NORMALIZADO, BD ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>`,
+  PORTA_SW_DOWN_CLIENTE_SIM: `CONECTIVIDADE ESTAVA NOK, ACESSO SWD/SWA OK, CLIENTE LOCALIZADO, PORTA DE CONEXÃO COM O CLIENTE DOWN, CLIENTE RESETOU OS EQUIPAMENTOS, LINK NORMALIZADO, BD ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_SW_DOWN: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORTA DE CONEXÃO SWT DOWN, CLIENTE RESETOU OS EQUIPAMENTOS PORÉM LINK CONTINUA DOWN, TX/SWT_FIBRA_FSP VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  PORTA_SW_UP: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORTA DE CONEXÃO SWT UP, CLIENTE RESETOU OS EQUIPAMENTOS PORÉM LINK CONTINUA DOWN, TX/SWT_FIBRA_FSP VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN ONT DOWN, CLIENTE NÃO PODE VERIFICAR O EQUIPAMENTO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_2: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN ONT DOWN, CLIENTE CHECKOU OS EQUIPAMENTOS/CABEAMENTO PORÉM NÃO NORMALIZOU, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_3: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE DOWN, TENTATIVAS DE CONTATO COM O CLIENTE PARA CHECKAR OS EQUIPAMENTO/CABEAMENTO, CLIENTE CHECKOU OS EQUIPAMENTOS/CABEAMENTO SEM SUCESSO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_4: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE DOWN, CLIENTE NÃO PODE VERIFICAR O EQUIPAMENTOS DA REDE INTERNA, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_5: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE DOWN, CLIENTE CHECKOU OS EQUIPAMENTOS/CABEAMENTO PORÉM NÃO NORMALIZOU, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_QUEDAS_TX_ERRO: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE COM QUEDAS/TAXA DE ERRO, CLIENTE CHECKOU OS EQUIPAMENTOS/CABEAMENTO PORÉM NÃO NORMALIZOU, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_QUEDAS_TX_ERRO_NAO_PODE: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE COM QUEDAS/TAXA DE ERRO, CLIENTE NÃO PODE VERIFICAR O EQUIPAMENTOS DA REDE INTERNA, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_LAN_QUEDAS_TX_ERRO_S_CONTATO: `CONECTIVIDADE NOK, ACESSO OLT OK, LAN CPE COM QUEDAS/TAXA DE ERRO,  TENTATIVAS COM CLIENTE PARA VERIFICAR EQUIPAMENTOS DA REDE INTERNA SEM SUCESSO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  GTD_FALHA_NIVEL_DE_SINAL: `CONECTIVIDADE NOK, ACESSO OLT OK, NÍVEL DE SINAL FORA DO PADRÃO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  TUNEL_DOWN: `CONECTIVIDADE NOK, ACESSO OLT OK, TUNEL DOWN
+Pré_massiva verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Pré Massiva 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_TUNEL_OK: `CONECTIVIDADE NOK, ACESSO OLT OK, TUNEL OK
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  SWT_PORTA_CPE_UP: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORTA DE CONEXÃO SWT UP, CLIENTE RESETOU OS EQUIPAMENTOS PORÉM LINK CONTINUA DOWN, TX/SWT_FIBRA_FSP VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  SWT_PORTA_CPE_DOWN_CLIENTE_SIM: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORTA DE CONEXÃO SWT UP, ACESSO SWT OK, PORTA DE CONEXÃO EQUIPAMENTO CLIENTE/CPE DOWN, CLIENTE RESETOU OS EQUIPAMENTOS PORÉM LINK CONTINUA DOWN, GTD/REGIONAL_FIELD VERIFICAR O CPE
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  SWT_PORTA_CPE_DOWN_CLIENTE_NAO: `CONECTIVIDADE NOK, ACESSO SWD/SWA OK, PORTA DE CONEXÃO SWT UP, ACESSO SWT OK, PORTA DE CONEXÃO EQUIPAMENTO CLIENTE/CPE DOWN, CLIENTE NÃO PODE VERIFICAR OS EQUIPAMENTOS, GTD/REGIONAL_FIELD VERIFICAR O CPE
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Campo
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  SWT_TUNEL_DOWN: `CONECTIVIDADE NOK, ACESSO ATÉ O SWT OK, TUNEL DOWN
+Pré_massiva verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Pré Massiva 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_SWT_TUNEL_OK: `CONECTIVIDADE NOK, ACESSO ATÉ O SWT OK, TUNEL OK
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  CHAMADO_ABERTO_PARA_LP_ERRADA: `CONECTIVIDADE OK, PORÉM EM CONTATO COM CLIENTE INFORMA DIVERGÊNCIA DE ENDEREÇO.
+Cliente orientado a abrir chamado para LP correta, encerrado como indevido.
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_CPE_SATURACAO: `CONECTIVIDADE OK, ACESSO AO CPE OK, VERIFICADO SATURAÇÃO DE BANDA, CLIENTE CIENTE CHAMADO ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_NOK_CPE_SATURACAO: `CONECTIVIDADE NOK, ACESSO AO CPE OK, VERIFICADO SATURAÇÃO DE BANDA, CLIENTE CIENTE CHAMADO ENCERRADO
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_NOK_CPE_SATURACAO_NAO_ACEITA: `CONECTIVIDADE NOK, ACESSO AO CPE OK, VERIFICADO SATURAÇÃO DE BANDA, CLIENTE NÃO ACEITA
+Diagnóstico verificar
+  
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_CPE_SATURACAO_NAO_ACEITA: `CONECTIVIDADE OK, ACESSO AO CPE OK, VERIFICADO SATURAÇÃO DE BANDA, CLIENTE NÃO ACEITA
+Diagnóstico verificar
+  
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico 
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA_DEG: `LINK OK ATÉ O CPE, PORÉM CLIENTE INFORMA QUE CONTINUA DEGRADADO
+Diagnóstico verificar
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  ONT_PARA_CPE_DOWN_SEM_CONTATO: `CONECTIVIDADE NOK, ONT ALINHADA, PORTA DE CONEXÃO ENTRE ONT E CPE DOWN, SEM CONTATO COM O CLIENTE PARA VERIFICAR EQUIPAMENTO, GTD/REGIONAL VERIFICAR
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: TX/SWT_FIBRA_FSP
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+  TUNEL_METRO_QUEDAS: `CONECTIVIDADE NOK, ACESSO OLT OK, TUNEL METRO/FUSION COM QUEDAS RECENTE
+Diagnóstico verificar
+
+Cliente: <CLIENTE>
+Serviço: <SERVICO>
+BD: <BD>
+
+Checklist:
+<TESTES_EXECUTADOS>
+
+Encaminhamento: Diagnóstico
+Responsável: <ANALISTA>
+Data: <DATA>
+CARIMBO#PIA`,
+};
+
+function formataTestes() {
+  const vars = stateModule.state.vars;
+  if (!vars || Object.keys(vars).length === 0)
+    return "(nenhum teste registrado)";
+  return Object.entries(vars)
+    .map(([label, resposta]) => `- ${label}: ${resposta}`)
+    .join("\n");
+}
+
+function expandTemplate(tpl) {
+  const now = new Date();
+  const infoBdState = stateModule.state.infoBd.info_bd;
+  const horarioAgendado =
+    stateModule.state.vars["Informe data/hora ou janela para novo contato"];
+
+  return tpl
+    .replaceAll("<BD>", infoBdState.bd)
+    .replaceAll("<CLIENTE>", infoBdState.cliente)
+    .replaceAll("<SERVICO>", infoBdState.servico)
+    .replaceAll("<ANALISTA>", infoBdState.usuario_responsavel)
+    .replaceAll("<HORARIO_AGENDADO>", (horarioAgendado ?? "").toUpperCase())
+    .replaceAll("<DATA>", now.toLocaleString("pt-BR"))
+    .replaceAll("<TESTES_EXECUTADOS>", formataTestes());
+}
+
+async function finish(tipo) {
+  const mensagem = "Fluxo finalizado - Confira o carimbo";
+
+  document.dispatchEvent(
+    new CustomEvent("carimbo:finalizado", {
+      detail: { mensagem, tipo },
+    }),
+  );
+
+  const tpl = CARIMBOS[tipo] || "";
+  const carimboTxt = expandTemplate(tpl);
+
+  const carimboDiv =document.getElementById("carimbo")
+  carimboDiv.textContent = carimboTxt;
+  const contadorCaracteresCarimbo = document.getElementById("caracteresCarimbo");
+  contarCaracteres(carimboDiv, contadorCaracteresCarimbo)
+
+  const btnCopy = document.getElementById("btnCopy");
+  btnCopy.disabled = false;
+  const btnCarimbo = document.getElementById("btnCarimbo");
+  btnCarimbo.disabled = false;
+}
+
+function copiarCarimbo(carimbo) {
+  const textarea = document.createElement("textarea");
+  textarea.value = carimbo.trim();
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand("copy");
+  } catch (err) {
+    console.error("Erro ao copiar texto: ", err);
+  }
+  document.body.removeChild(textarea);
+}
+
+function contarCaracteres(div, contador) {
+  const caracteres = div.textContent.length;
+  contador.textContent = `Caracteres: ${caracteres}/4000`;
+}
+
+const carimbo = { finish, copiarCarimbo, contarCaracteres };
+
+export default carimbo;

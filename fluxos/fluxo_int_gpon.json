@@ -1,0 +1,296 @@
+{
+    "fluxo_int_gpon": {
+        "title": "Fluxo interrompido GPON",
+        "version": "1.1",
+        "start": "gpon_int_start",
+        "steps": [
+            {
+                "id": "gpon_int_start",
+                "type": "message",
+                "text": "Interrompido – GPON: início do diagnóstico.",
+                "next": "ping_cpe"
+            },
+            {
+                "id": "ping_cpe",
+                "type": "yesno",
+                "text": "Confirmando, Conectividade/Tabela ARP entre RA e CPE está OK?",
+                "yes": "cpe_cliente",
+                "no": "acesso_olt"
+            },
+            {
+                "id": "cpe_cliente",
+                "type": "yesno",
+                "text": "CPE cliente?",
+                "yes": "END:DIAGNOSTICO_CPE_CLIENTE",
+                "no": "acesso_cpe"
+            },
+            {
+                "id": "acesso_cpe",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp",
+                "no": "END:DIAGNOSTICO_SEM_ACESSO_CPE"
+            },
+            {
+                "id": "verificar_lan_arp",
+                "type": "yesno",
+                "text": "Verifique LAN/ARP cliente - Rede LAN do cliente está OK?",
+                "yes": "teste_servico",
+                "no": "contato_cliente_verificacoes_cpe"
+            },
+            {
+                "id": "contato_cliente_verificacoes_cpe",
+                "type": "yesno",
+                "text": "Será necessário contatar o cliente para seguir verificações junto aos equipamentos - Contato OK?",
+                "yes": "cliente_deve_verificar_cabos_cpe",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "sem_contato_opcoes",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente_verificacoes"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Todas tentativas de contato conforme procedimento(inclusive apoio GI) sem sucesso, seguir fluxo técnico",
+                        "next": "END:GTD_FALHA_LAN_3"
+                    }
+                ]
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:ENCERRAR_BD_FALHA_REDE_INTERNA",
+                "no": "END:DIAGNOSTICO_CPE_FALHA_LAN_CLIENTE"
+            },
+            {
+                "id": "teste_servico",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Testes OK?",
+                "yes": "normalizou_cpe",
+                "no": "END:DIAGNOSTICO_CPE_FALHA_PING_SERVICO"
+            },
+            {
+                "id": "normalizou_cpe",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:ENCERRAR_BD_OK_ATE_CPE",
+                "no": "END:DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA"
+            },
+            {
+                "id": "acesso_olt",
+                "type": "yesno",
+                "text": "O Acesso à OLT está OK?",
+                "yes": "cliente_posicao",
+                "no": "gpon_massiva_acesso_olt"
+            },
+            {
+                "id": "cliente_posicao",
+                "type": "yesno",
+                "text": "Localizou posição do cliente?",
+                "yes": "gpon_sincronismo",
+                "no": "END:DIAGNOSTICO_SEM_POSICAO_OLT"
+            },
+            {
+                "id": "gpon_massiva_acesso_olt",
+                "type": "yesno",
+                "text": "Consta massiva na região?",
+                "yes": "massiva_input_olt",
+                "no": "END:POSSIVEL_MASSIVA_OLT"
+            },
+            {
+                "id": "massiva_input_olt",
+                "type": "input",
+                "text": "Inserir o número da TA",
+                "placeholder": "",
+                "next": "END:MASSIVA_OLT"
+            },
+            {
+                "id": "gpon_massiva_pon",
+                "type": "yesno",
+                "text": "Consta massiva na região?",
+                "yes": "massiva_input_olt",
+                "no": "END:PORTA_PON_DOWN_SEM_TA"
+            },
+            {
+                "id": "massiva_input_olt",
+                "type": "input",
+                "text": "Inserir o número da TA",
+                "placeholder": "",
+                "next": "END:PORTA_PON_DOWN"
+            },
+            {
+                "id": "gpon_sincronismo",
+                "type": "yesno",
+                "text": "Sincronismo ONT do cliente está OK?",
+                "yes": "gpon_lan_ont",
+                "no": "gpon_porta_pon"
+            },
+            {
+                "id": "gpon_porta_pon",
+                "type": "yesno",
+                "text": "A porta PON está UP?",
+                "yes": "ont_validacao_dying_gasp",
+                "no": "gpon_massiva_pon"
+            },
+            {
+                "id": "ont_validacao_dying_gasp",
+                "type": "yesno",
+                "text": "A ONT que está down é devido a alarme de dying gasp(equipamento desligado)?",
+                "yes": "contato_cliente_informar_dg",
+                "no": "END:ONT_SEM_SINCRONISMO"
+            },
+            {
+                "id": "contato_cliente_informar_dg",
+                "type": "yesno",
+                "text": "Será necessário contatar o cliente para informar que estamos com alarme de equipamento desligado no local - Contato OK?",
+                "yes": "informar_falha_rede_interna_cliente_2",
+                "no": "sem_contato_opcoes_3"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_2",
+                "type": "yesno",
+                "text": "Informe que estamos com alarme de equipamento desligado no local - Cliente aceitou?",
+                "yes": "nome_contato_cliente_sim",
+                "no": "nome_contato_cliente_nao"
+            },
+            {
+                "id": "nome_contato_cliente_sim",
+                "type": "input",
+                "text": "Nome do cliente contatado",
+                "placeholder": "",
+                "next": "telefone_contato_cliente_sim"
+            },
+            {
+                "id": "telefone_contato_cliente_sim",
+                "type": "input",
+                "text": "Telefone do cliente contatado",
+                "placeholder": "",
+                "next": "END:ENCERRAR_BD_FALHA_DG"
+            },
+            {
+                "id": "nome_contato_cliente_nao",
+                "type": "input",
+                "text": "Nome do cliente contatado",
+                "placeholder": "",
+                "next": "telefone_contato_cliente_nao"
+            },
+            {
+                "id": "telefone_contato_cliente_nao",
+                "type": "input",
+                "text": "Telefone do cliente contatado",
+                "placeholder": "",
+                "next": "END:GTD_DG_NAO_ACEITA"
+            },
+            {
+                "id": "gpon_lan_ont",
+                "type": "yesno",
+                "text": "A Lan ONT UP, recebendo MAC do CPE?",
+                "yes": "gpon_nivel_sinal",
+                "no": "contato_cliente_verificacoes_olt"
+            },
+            {
+                "id": "contato_cliente_verificacoes_olt",
+                "type": "yesno",
+                "text": "Será necessário contatar o cliente para seguir verificações junto aos equipamentos - Contato OK?",
+                "yes": "cliente_deve_verificar_cabos",
+                "no": "sem_contato_opcoes_2"
+            },
+            {
+                "id": "sem_contato_opcoes_2",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente_verificacoes"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Todas tentativas de contato conforme procedimento(inclusive apoio GI) sem sucesso, seguir fluxo técnico",
+                        "next": "END:GTD_FALHA_LAN_4"
+                    }
+                ]
+            },
+            {
+                "id": "sem_contato_opcoes_3",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente_verificacoes"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Todas tentativas de contato conforme procedimento(inclusive apoio GI) sem sucesso, seguir fluxo técnico",
+                        "next": "END:GTD_DG_SEM_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "agendar_retorno",
+                "type": "input",
+                "text": "Informe data/hora ou janela para novo contato",
+                "placeholder": "Ex.: hoje 14:30 / amanhã 09:00",
+                "next": "END:AGENDAR_RETORNO"
+            },
+            {
+                "id": "cliente_deve_verificar_cabos",
+                "type": "yesno",
+                "text": "Verifique com o cliente se ele pode verificar se os cabos estão conectados / CPE está energizado com LEDs acessos. É possivel?",
+                "yes": "gpon_normalizou",
+                "no": "END:GTD_FALHA_LAN"
+            },
+            {
+                "id": "cliente_deve_verificar_cabos_cpe",
+                "type": "yesno",
+                "text": "Verifique com o cliente se ele pode verificar se os cabos da rede interna estão conectados. É possivel?",
+                "yes": "gpon_normalizou_cpe",
+                "no": "END:GTD_FALHA_LAN_4"
+            },
+            {
+                "id": "gpon_normalizou",
+                "type": "yesno",
+                "text": "Após verificação, normalizou?",
+                "yes": "END:NORMALIZADO",
+                "no": "END:GTD_FALHA_LAN_2"
+            },
+            {
+                "id": "gpon_normalizou_cpe",
+                "type": "yesno",
+                "text": "Após verificação, normalizou?",
+                "yes": "END:NORMALIZADO",
+                "no": "END:GTD_FALHA_LAN_5"
+            },
+            {
+                "id": "gpon_nivel_sinal",
+                "type": "yesno",
+                "text": "Nível de sinal está OK?",
+                "yes": "verificar_fusion_metro",
+                "no": "END:GTD_FALHA_NIVEL_DE_SINAL"
+            },
+            {
+                "id": "verificar_fusion_metro",
+                "type": "yesno",
+                "text": "Tunel Metro OK?",
+                "yes": "END:DIAGNOSTICO_TUNEL_OK",
+                "no": "END:TUNEL_DOWN"
+            }
+        ]
+    }
+}

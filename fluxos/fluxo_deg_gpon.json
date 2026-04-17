@@ -1,0 +1,254 @@
+{
+    "fluxo_deg_gpon": {
+        "title": "Fluxo degradado GPON",
+        "version": "1.1",
+        "start": "deg_gpon_start",
+        "steps": [
+            {
+                "id": "deg_gpon_start",
+                "type": "message",
+                "text": "Degradado – GPON: início do diagnóstico.",
+                "next": "teste_ping_wan_cpe"
+            },
+            {
+                "id": "teste_ping_wan_cpe",
+                "type": "yesno",
+                "text": "Ping WAN/CPE está OK?",
+                "yes": "cpe_cliente_deg_gpon",
+                "no": "cliente_posicao_deg_gpon"
+            },
+            {
+                "id": "cpe_cliente_deg_gpon",
+                "type": "yesno",
+                "text": "CPE cliente?",
+                "yes": "cliente_posicao_deg_gpon",
+                "no": "acesso_cpe_deg_gpon"
+            },
+            {
+                "id": "acesso_cpe_deg_gpon",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp_deg_gpon",
+                "no": "END:DIAGNOSTICO_SEM_ACESSO_CPE"
+            },
+            {
+                "id": "verificar_lan_arp_deg_gpon",
+                "type": "yesno",
+                "text": "Verifique LAN cliente (UP/ARP) - Há quedas/TX de erros na interface LAN?",
+                "yes": "contato_cliente_1",
+                "no": "verificar_saturacao_deg_gpon"
+            },
+            {
+                "id": "contato_cliente_1",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "informar_falha_rede_interna_cliente_1",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "sem_contato_opcoes",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente_1"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Encerrar checklist sem contato",
+                        "next": "END:SEM_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_1",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:ENCERRAR_BD_FALHA_REDE_INTERNA",
+                "no": "END:DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA"
+            },
+            {
+                "id": "agendar_retorno",
+                "type": "input",
+                "text": "Informe data/hora ou janela para novo contato",
+                "placeholder": "Ex.: hoje 14:30 / amanhã 09:00",
+                "next": "END:AGENDAR_RETORNO"
+            },
+            {
+                "id": "contato_cliente_2",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "informar_falha_rede_interna_cliente_2",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_2",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:DIAGNOSTICO_CPE_SATURACAO",
+                "no": "END:DIAGNOSTICO_CPE_SATURACAO_NAO_ACEITA"
+            },
+            {
+                "id": "verificar_saturacao_deg_gpon",
+                "type": "yesno",
+                "text": "Identificado saturação?",
+                "yes": "contato_cliente_2",
+                "no": "teste_servico_deg_gpon"
+            },
+            {
+                "id": "teste_servico_deg_gpon",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Degradação?",
+                "yes": "cliente_posicao_deg_gpon",
+                "no": "contato_cliente_3"
+            },
+            {
+                "id": "contato_cliente_3",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "normalizou_cpe_deg_gpon",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "normalizou_cpe_deg_gpon",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:ENCERRAR_BD_OK_ATE_CPE",
+                "no": "END:DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA_DEG"
+            },
+            {
+                "id": "cliente_posicao_deg_gpon",
+                "type": "yesno",
+                "text": "Acesse a OLT - Localizou posição do cliente?",
+                "yes": "verificar_nivel_sinal_deg_gpon",
+                "no": "END:DIAGNOSTICO_SEM_POSICAO_OLT"
+            },
+            {
+                "id": "verificar_nivel_sinal_deg_gpon",
+                "type": "yesno",
+                "text": "Nível de sinal está OK?",
+                "yes": "verificar_metro_fusion_deg_gpon",
+                "no": "END:GTD_FALHA_NIVEL_DE_SINAL"
+            },
+            {
+                "id": "verificar_metro_fusion_deg_gpon",
+                "type": "yesno",
+                "text": "Verificar Rede Metro/Fusion - Tunel metro com queda recente?",
+                "yes": "END:TUNEL_METRO_QUEDAS",
+                "no": "acesso_cpe_deg_gpon_2"
+            },
+            {
+                "id": "acesso_cpe_deg_gpon_2",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp_deg_gpon_2",
+                "no": "END:DIAGNOSTICO_NOK_SEM_ACESSO_CPE"
+            },
+            {
+                "id": "verificar_lan_arp_deg_gpon_2",
+                "type": "yesno",
+                "text": "Verifique LAN cliente (UP/ARP) - Há quedas/TX de erros na interface LAN?",
+                "yes": "contato_cliente_verificacoes_cpe",
+                "no": "verificar_saturacao_deg_gpon_2"
+            },
+            {
+                "id": "contato_cliente_verificacoes_cpe",
+                "type": "yesno",
+                "text": "Será necessário contatar o cliente para seguir verificações junto aos equipamentos - Contato OK?",
+                "yes": "cliente_deve_verificar_cabos_cpe",
+                "no": "sem_contato_opcoes_cpe"
+            },
+            {
+                "id": "cliente_deve_verificar_cabos_cpe",
+                "type": "yesno",
+                "text": "Verifique com o cliente se ele pode verificar possível mal contato/troca dos cabos da rede interna(Entre CPE e rede interna). É possivel?",
+                "yes": "gpon_normalizou_cpe",
+                "no": "END:GTD_FALHA_LAN_QUEDAS_TX_ERRO_NAO_PODE"
+            },
+            {
+                "id": "gpon_normalizou_cpe",
+                "type": "yesno",
+                "text": "Após verificação, normalizou?",
+                "yes": "END:NORMALIZADO",
+                "no": "END:GTD_FALHA_LAN_QUEDAS_TX_ERRO"
+            },
+            {
+                "id": "sem_contato_opcoes_cpe",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente_verificacoes_cpe"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Todas tentativas de contato conforme procedimento(inclusive apoio GI) sem sucesso, seguir fluxo técnico",
+                        "next": "END:GTD_FALHA_LAN_QUEDAS_TX_ERRO_S_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "verificar_saturacao_deg_gpon_2",
+                "type": "yesno",
+                "text": "Identificado saturação?",
+                "yes": "informar_falha_rede_interna_cliente_4",
+                "no": "teste_servico_deg_gpon_2"
+            },
+            {
+                "id": "contato_cliente_saturacao_cpe",
+                "type": "yesno",
+                "text": "Será necessário contatar o cliente para informar saturação de banda - Contato OK?",
+                "yes": "",
+                "no": "sem_contato_opcoes_saturacao_cpe"
+            },
+            {
+                "id": "sem_contato_opcoes_saturacao_cpe",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": ""
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Todas tentativas de contato conforme procedimento(inclusive apoio GI) sem sucesso, seguir fluxo técnico",
+                        "next": "END:GTD_FALHA_LAN_QUEDAS_TX_ERRO_S_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_4",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:DIAGNOSTICO_NOK_CPE_SATURACAO",
+                "no": "END:DIAGNOSTICO_NOK_CPE_SATURACAO_NAO_ACEITA"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_3",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:ENCERRAR_BD_OK_ATE_CPE",
+                "no": "END:DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA_2"
+            },
+            {
+                "id": "teste_servico_deg_gpon_2",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Degradação?",
+                "yes": "END:DIAGNOSTICO_LINK_DEGRADADO",
+                "no": "informar_falha_rede_interna_cliente_3"
+            }
+        ]
+    }
+}

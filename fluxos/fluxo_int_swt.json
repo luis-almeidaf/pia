@@ -1,0 +1,195 @@
+{
+    "fluxo_int_swt": {
+        "title": "Fluxo interrompido SWT",
+        "version": "1.1",
+        "start": "gpon_swt_start",
+        "steps": [
+            {
+                "id": "gpon_swt_start",
+                "type": "message",
+                "text": "Interrompido – SWT: início do diagnóstico.",
+                "next": "ping_cpe"
+            },
+            {
+                "id": "ping_cpe",
+                "type": "yesno",
+                "text": "Confirmando, Conectividade/Tabela ARP entre RA e CPE está OK??",
+                "yes": "cpe_cliente",
+                "no": "acesso_swa_swe_swd"
+            },
+            {
+                "id":"cpe_cliente",
+                "type": "yesno",
+                "text": "CPE cliente?",
+                "yes": "END:DIAGNOSTICO_CPE_CLIENTE",
+                "no": "acesso_cpe"
+            },
+            {
+                "id": "acesso_cpe",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp",
+                "no": "END:DIAGNOSTICO_SEM_ACESSO_CPE"
+            },
+            {
+                "id": "verificar_lan_arp",
+                "type": "yesno",
+                "text": "Verifique LAN/ARP cliente - Rede LAN do cliente está OK?",
+                "yes": "teste_servico",
+                "no": "informar_falha_rede_interna_cliente"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:ENCERRAR_BD_FALHA_REDE_INTERNA",
+                "no": "END:DIAGNOSTICO_CPE_FALHA_LAN_CLIENTE"
+            },
+            {
+                "id": "teste_servico",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Testes OK?",
+                "yes": "normalizou_cpe",
+                "no": "END:DIAGNOSTICO_CPE_FALHA_PING_SERVICO"
+            },
+            {
+                "id": "normalizou_cpe",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:ENCERRAR_BD_OK_ATE_CPE",
+                "no": "END:DIAGNOSTICO_LINK_OK_CLIENTE_NAO_VALIDA"
+            },
+            {
+                "id": "acesso_swa_swe_swd",
+                "type": "yesno",
+                "text": "O Acesso ao SWA/SHE/SWD está OK?",
+                "yes": "cliente_posicao",
+                "no": "gpon_massiva_acesso_swt"
+            },
+            {
+                "id": "gpon_massiva_acesso_swt",
+                "type": "yesno",
+                "text": "Consta massiva na região?",
+                "yes": "massiva_input_olt",
+                "no": "END:POSSIVEL_MASSIVA_SWD_SWA"
+            },
+            {
+                "id": "massiva_input_olt",
+                "type": "input",
+                "text": "Inserir o número da TA",
+                "placeholder": "",
+                "next": "END:MASSIVA_SWD_SWA"
+            },
+            {
+                "id": "cliente_posicao",
+                "type": "yesno",
+                "text": "Localizou posição do cliente?",
+                "yes": "verificar_porta_conexao",
+                "no": "END:DIAGNOSTICO_SEM_POSICAO_SWD_SWA"
+            },
+            {
+                "id": "verificar_porta_conexao",
+                "type": "yesno",
+                "text": "Porta de conexão com o cliente está alinhada?",
+                "yes": "acesso_swt",
+                "no": "contato_cliente_porta_conexao"
+            },
+            {
+                "id": "contato_cliente_porta_conexao",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "solicitar_reset_equips",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "acesso_swt",
+                "type": "yesno",
+                "text": "Acesso ao SWT está OK?",
+                "yes": "status_porta_conexao_cpe",
+                "no": "contato_cliente_swt_nok"
+            },
+            {
+                "id": "contato_cliente_swt_nok",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "solicitar_reset_equips_2",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "sem_contato_opcoes",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Encerrar checklist sem contato",
+                        "next": "END:SEM_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "solicitar_reset_equips_2",
+                "type": "yesno",
+                "text": "Cliente pode resetar os equipamentos?",
+                "yes": "normalizou_apos_reset_2",
+                "no": "END:PORTA_SW_UP_CLIENTE_NAO"
+            },
+            {
+                "id": "solicitar_reset_equips",
+                "type": "yesno",
+                "text": "Cliente pode resetar os equipamentos?",
+                "yes": "normalizou_apos_reset",
+                "no": "END:PORTA_SW_DOWN_CLIENTE_NAO"
+            },
+            {
+                "id": "normalizou_apos_reset",
+                "type": "yesno",
+                "text": "Após reset, normalizou?",
+                "yes": "END:PORTA_SW_DOWN_CLIENTE_SIM",
+                "no": "END:PORTA_SW_DOWN"
+            },
+            {
+                "id": "normalizou_apos_reset_2",
+                "type": "yesno",
+                "text": "Após reset, normalizou?",
+                "yes": "END:PORTA_SW_UP_CLIENTE_SIM",
+                "no": "END:PORTA_SW_UP"
+            },
+            {
+                "id": "status_porta_conexao_cpe",
+                "type": "yesno",
+                "text": "Verificar status da porta de conexão com CPE - Está OK?",
+                "yes": "verificar_fusion_metro",
+                "no": "solicitar_verificar_cabos_cliente"
+            },
+            {
+                "id": "verificar_fusion_metro",
+                "type": "yesno",
+                "text": "Tunel Metro OK?",
+                "yes": "END:DIAGNOSTICO_SWT_TUNEL_OK",
+                "no": "END:SWT_TUNEL_DOWN"
+            },
+            {
+                "id": "solicitar_verificar_cabos_cliente",
+                "type": "yesno",
+                "text": "Cliente pode verificar os cabos entre SWT e Router?",
+                "yes": "normalizou_apos_verificacao",
+                "no": "END:SWT_PORTA_CPE_DOWN_CLIENTE_NAO"
+            },
+            {
+                "id": "normalizou_apos_verificacao",
+                "type": "yesno",
+                "text": "Normalizou, após verificação?",
+                "yes": "END:NORMALIZADO",
+                "no": "END:SWT_PORTA_CPE_DOWN_CLIENTE_SIM"
+            }
+        ]
+    }
+}

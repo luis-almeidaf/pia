@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PIA - Plataforma Integrada de Atendimento</title>
+    <link rel="stylesheet" href="/static/css/index.css" />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='/favico/favicon.ico') }}"
+    />
+  </head>
+  <body>
+    <!-- ── HEADER ────────────────────────────────────────── -->
+    <header class="app-header">
+      <h1>PIA - Plataforma Integrada de Atendimento</h1>
+      <button id="logoutBtn" class="btn-logout">Sair</button>
+    </header>
+
+    <!-- ── LAYOUT PRINCIPAL ──────────────────────────────── -->
+    <div class="page-body">
+      <!-- COLUNA PRINCIPAL -->
+      <main class="main-col">
+        <!-- Consulta BD -->
+        <section class="panel">
+          <p class="section-title">Consulta do BD</p>
+
+          <div class="input-row">
+            <input id="bdInput" name="consultaBd" placeholder="Digite o BD:" />
+            <button class="btn btn-primary" id="bdInputBtn">Consultar</button>
+          </div>
+
+          <!-- Dados do BD -->
+          <div id="bdsInfoContainer" class="data-block" hidden>
+            <p class="data-block-label">Dados do BD</p>
+            <div class="table-wrap">
+              <table id="bdsInfo">
+                <thead>
+                  <tr>
+                    <th>BD</th>
+                    <th>Grupo</th>
+                    <th>Produto</th>
+                    <th>Rede</th>
+                    <th>Status</th>
+                    <th>Tipo Abertura</th>
+                    <th>Procedência</th>
+                    <th>Serviço</th>
+                  </tr>
+                </thead>
+                <tbody id="bdsInfoBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Dados do cliente -->
+          <div id="clienteInfoContainer" class="data-block" hidden>
+            <p class="data-block-label">Dados do Cliente</p>
+            <div class="table-wrap">
+              <table id="clienteInfo">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Designador</th>
+                    <th>LP</th>
+                    <th>Id Vantive</th>
+                    <th>Documento</th>
+                    <th>Estado</th>
+                    <th>Cidade</th>
+                    <th>Endereço</th>
+                  </tr>
+                </thead>
+                <tbody id="clienteInfoBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Dados da falha -->
+          <div id="falhaInfoContainer" class="data-block" hidden>
+            <p class="data-block-label">Dados da Falha</p>
+            <div class="table-wrap">
+              <table id="falhaInfo">
+                <thead>
+                  <tr>
+                    <th>Reclamação</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+                <tbody id="falhaInfoBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Flow -->
+          <div id="flowContainer" class="data-block" hidden>
+            <p class="data-block-label">Fluxo</p>
+            <div id="flowBox" class="flow"></div>
+          </div>
+        </section>
+
+        <!-- Carimbo -->
+        <section class="painel-carimbo" id="painel-carimbo" hidden>
+          <p class="section-title">Carimbo</p>
+          <div id="carimbo" class="carimbo-box"></div>
+          <p id="caracteresCarimbo">Caracteres:</p>
+
+          <div>
+            <textarea
+              id="carimbo-log"
+              class="carimbo-box"
+              placeholder="Mensagem de log"
+              maxlength="4000"
+            ></textarea>
+          </div>
+          <div class="carimbo-controls">
+            <button id="btnCopy" class="btn btn-ghost" disabled>
+              Copiar carimbo
+            </button>
+            <button id="btnCarimbo" class="btn btn-ghost" disabled>
+              Carimbar Bd
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar-col">
+        <p class="section-title">Variáveis do Atendimento</p>
+        <div id="vars"></div>
+      </aside>
+    </div>
+    <!-- /.page-body -->
+
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <h2>Aviso</h2>
+        <div id="modalLista"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/static/js/index.js"></script>
+  </body>
+</html>

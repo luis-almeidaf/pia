@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PIA - Plataforma Integrada de Atendimento</title>
+    <link rel="stylesheet" href="/static/css/login.css" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='/favico/favicon.ico') }}">
+  </head>
+
+  <body>
+    <div class="login-container">
+      <div class="login-card">
+        <h2>Bem-vindo</h2>
+        <p class="subtitle">Acesse usando os dados da rede corporativa</p>
+
+        <label for="usernameInput">Usuário</label>
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Digite seu RE"
+        />
+        
+        <div class="password-wrapper">
+          <input id="passwordInput" type="password" placeholder="Digite sua senha" />
+          <span id="togglePassword" class="toggle-password">🔒</span>
+        </div>
+
+        <p id="loginError" class="error" style="color: red; display: none;"></p>
+
+        <button id="loginBtn" class="btn login-btn">Entrar</button>
+      </div>
+    </div>
+
+    <script type="module" src="/static/js/login.js"></script>
+  </body>
+</html>

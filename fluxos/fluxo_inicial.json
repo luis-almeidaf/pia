@@ -1,0 +1,441 @@
+{
+    "fluxo_inicial": {
+        "title": "Fluxo Inicial",
+        "version": "1.1",
+        "start": "checklist_intro",
+        "steps": [
+            {
+                "id": "checklist_intro",
+                "type": "message",
+                "text": "CHECKLIST INICIAL",
+                "next": "localizar_cliente_inventario"
+            },
+            {
+                "id": "localizar_cliente_inventario",
+                "type": "yesno",
+                "text": "Localizou o cliente na REDE IP conforme inventário",
+                "yes": "interface_status",
+                "no": "buscar_ultimos_logs"
+            },
+            {
+                "id": "interface_status",
+                "type": "choice",
+                "text": "Status da interface",
+                "options": [
+                    {
+                        "value": "UP",
+                        "label": "UP/UP",
+                        "next": "teste_conectividade"
+                    },
+                    {
+                        "value": "DOWN",
+                        "label": "DOWN ou ADM DOWN",
+                        "next": "consta_massiva"
+                    }
+                ]
+            },
+            {
+                "id": "buscar_ultimos_logs",
+                "type": "yesno",
+                "text": "Encontrou logs de chamados anteriores?",
+                "yes": "interface_status",
+                "no": "validar_manobra"
+            },
+            {
+                "id": "validar_manobra",
+                "type": "yesno",
+                "text": "Cliente foi manobrado?",
+                "yes": "interface_status",
+                "no": "END:DIAGNOSTICO_CLIENTE_NAO_LOCALIZADO"
+            },
+            {
+                "id": "teste_conectividade",
+                "type": "yesno",
+                "text": "Conectividade/Tabela ARP entre RA e CPE está OK?",
+                "yes": "contato_cliente",
+                "no": "sel_segmento_interrompido"
+            },
+            {
+                "id": "consta_massiva",
+                "type": "yesno",
+                "text": "Consta massiva para região?",
+                "yes": "massiva_input",
+                "no": "validar_manobra_massiva"
+            },
+            {
+                "id": "validar_manobra_massiva",
+                "type": "yesno",
+                "text": "Cliente foi manobrado?",
+                "yes": "END:DIAGNOSTICO_POSSIVEL_MASSIVA",
+                "no": "END:DIAGNOSTICO_CLIENTE_NAO_LOCALIZADO"
+            },
+            {
+                "id": "massiva_input",
+                "type": "input",
+                "text": "Inserir o número da TA",
+                "placeholder": "",
+                "next": "END:MASSIVA"
+            },
+            {
+                "id": "contato_cliente",
+                "type": "yesno",
+                "text": "Conseguiu contato com o cliente?",
+                "yes": "contato_cliente_confirmacao",
+                "no": "sem_contato_opcoes"
+            },
+            {
+                "id": "contato_cliente_confirmacao",
+                "type": "yesno",
+                "text": "A reclamação do cliente é interrompido?",
+                "yes": "checklist_entrevista",
+                "no": "reclamacao_tratada_via_reparo"
+            },
+            {
+                "id": "reclamacao_tratada_via_reparo",
+                "type": "yesno",
+                "text": "Reclamação tratada via reparo?",
+                "yes": "classificar_reclamacao",
+                "no": "reclamacao_usuario"
+            },
+            {
+                "id": "reclamacao_usuario",
+                "type": "input",
+                "text": "Qual a solicitação do usuário?",
+                "placeholder": "Descreva o que foi solicitado.",
+                "next": "END:RECLAMACAO_NAO_TRATADA_VIA_REPARO"
+            },
+            {
+                "id": "sem_contato_opcoes",
+                "type": "choice",
+                "text": "Sem contato. O que deseja fazer?",
+                "options": [
+                    {
+                        "label": "Tentar contato novamente agora",
+                        "next": "contato_cliente"
+                    },
+                    {
+                        "label": "Agendar retorno para depois",
+                        "next": "agendar_retorno"
+                    },
+                    {
+                        "label": "Encerrar checklist sem contato",
+                        "next": "END:SEM_CONTATO"
+                    }
+                ]
+            },
+            {
+                "id": "agendar_retorno",
+                "type": "input",
+                "text": "Informe data/hora ou janela para novo contato",
+                "placeholder": "Ex.: hoje 14:30 / amanhã 09:00",
+                "next": "END:AGENDAR_RETORNO"
+            },
+            {
+                "id": "checklist_entrevista",
+                "type": "yesno",
+                "text": "Endereço do chamado está correto?",
+                "yes": "reclamacao_tratada_via_reparo",
+                "no": "END:CHAMADO_ABERTO_PARA_LP_ERRADA"
+            },
+            {
+                "id": "checklist_entrevista_ok_vivo_nok_cliente",
+                "type": "yesno",
+                "text": "Endereço do chamado está correto?",
+                "yes": "link_ok_fora_cliente",
+                "no": "END:CHAMADO_ABERTO_PARA_LP_ERRADA"
+            },
+            {
+                "id": "link_ok_fora_cliente",
+                "type": "yesno",
+                "text": "Cliente já verificou rede interna?",
+                "yes": "retorno_contato",
+                "no": "checklist_interrompido_1"
+            },
+            {
+                "id": "retorno_contato",
+                "type": "message",
+                "text": "Informar ao cliente que irá testar o link e retornar o contato posteriormente se necessário.",
+                "next": "sel_segmento_interrompido"
+            },
+            {
+                "id": "classificar_reclamacao",
+                "type": "choice",
+                "text": "Qual é a reclamação?",
+                "options": [
+                    {
+                        "label": "Interrompido",
+                        "next": "checklist_interrompido_1"
+                    },
+                    {
+                        "label": "Degradação",
+                        "next": "checklist_degradacao"
+                    },
+                    {
+                        "label": "Falha de Acesso Específico",
+                        "next": "checklist_fe_produto"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_fe_produto",
+                "type": "choice",
+                "text": "Qual é o produto?",
+                "options": [
+                    {
+                        "label": "IP Dedicado",
+                        "next": "fluxo_ip_dedicado"
+                    },
+                    {
+                        "label": "VPN",
+                        "next": "fluxo_vpn"
+                    }
+                ]
+            },
+            {
+                "id": "fluxo_ip_dedicado",
+                "type": "choice",
+                "text": "Qual a reclamação",
+                "options": [
+                    {
+                        "label": "Não acessa site específico",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Não comunica com servidor específico",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Não fecha VPN",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Porta bloqueada",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Falha em aplicação",
+                        "next": "checklist_fe_1"
+                    }
+                ]
+            },
+                        {
+                "id": "fluxo_vpn",
+                "type": "choice",
+                "text": "Qual a reclamação",
+                "options": [
+                    {
+                        "label": "Não comunica com a matriz",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Não comunica com outra unidade",
+                        "next": "checklist_fe_1"
+                    },
+                    {
+                        "label": "Não acessa aplicação / IP Específico",
+                        "next": "checklist_fe_1"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_interrompido_1",
+                "type": "yesno",
+                "text": "Modem/ONT/SWT estão ligados e com os leds acessos?",
+                "yes": "checklist_interrompido_2",
+                "no": "checklist_interrompido_2"
+            },
+            {
+                "id": "checklist_interrompido_2",
+                "type": "yesno",
+                "text": "Cabos estão conectados?",
+                "yes": "checklist_interrompido_3",
+                "no": "checklist_interrompido_3"
+            },
+            {
+                "id": "checklist_interrompido_3",
+                "type": "yesno",
+                "text": "Orientar cliente a realizar reset dos equipamentos - Após reset, normalizou?",
+                "yes": "END:NORMALIZADO",
+                "no": "sel_segmento_interrompido"
+            },
+            {
+                "id": "sel_segmento_interrompido",
+                "type": "choice",
+                "text": "Interrompido — qual o segmento?",
+                "options": [
+                    {
+                        "label": "GPON",
+                        "next": "FLUXO:fluxo_int_gpon"
+                    },
+                    {
+                        "label": "SWT",
+                        "next": "FLUXO:fluxo_int_swt"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_degradacao",
+                "type": "choice",
+                "text": "Problema",
+                "options": [
+                    {
+                        "label": "Quedas, perda de pacotes, latência",
+                        "next": "checklist_degradacao_qpl_1"
+                    },
+                    {
+                        "label": "Banda",
+                        "next": "checklist_degradacao_banda_1"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_degradacao_qpl_1",
+                "type": "choice",
+                "text": "Cliente visualiza perdas/quedas/latência através de uma ferramenta de monitoramento? Ou através de teste de ping estendido?",
+                "options": [
+                    {
+                        "label": "Ferramenta de monitoramento",
+                        "next": "checklist_degradacao_qpl_2"
+                    },
+                    {
+                        "label": "Teste de ping",
+                        "next": "checklist_degradacao_qpl_2"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_degradacao_qpl_2",
+                "type": "input",
+                "text": "Quedas para o link todo ou destino específico?",
+                "placeholder": "",
+                "next": "checklist_degradacao_qpl_3"
+            },
+            {
+                "id": "checklist_degradacao_qpl_3",
+                "type": "input",
+                "text": "Qual a porcentagem de perdas/latência?",
+                "placeholder": "",
+                "next": "checklist_degradacao_qpl_4"
+            },
+            {
+                "id": "checklist_degradacao_qpl_4",
+                "type": "input",
+                "text": "Cliente monitora/pinga de dentro do link para fora (Solicitar quais destinos monitora) ou de fora para o link? (Solicitar qual origem).",
+                "placeholder": "",
+                "next": "checklist_degradacao_qpl_5"
+            },
+            {
+                "id": "checklist_degradacao_qpl_5",
+                "type": "input",
+                "text": "Quando percebeu a falha?",
+                "placeholder": "",
+                "next": "sel_segmento_degradacao"
+            },
+            {
+                "id": "checklist_degradacao_banda_1",
+                "type": "choice",
+                "text": "Falha de banda ocorre para download, upload ou ambos?",
+                "options": [
+                    {
+                        "label": "Download",
+                        "next": "checklist_degradacao_banda_2"
+                    },
+                    {
+                        "label": "Upload",
+                        "next": "checklist_degradacao_banda_2"
+                    },
+                    {
+                        "label": "Ambos",
+                        "next": "checklist_degradacao_banda_2"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_degradacao_banda_2",
+                "type": "input",
+                "text": "Quanto está atingido?",
+                "placeholder": "",
+                "next": "checklist_degradacao_banda_3"
+            },
+            {
+                "id": "checklist_degradacao_banda_3",
+                "type": "input",
+                "text": "Como está testando? Sites medidores? Testou em sites diferentes? Servidor de teste é da região? Ou está testando transferindo arquivos?",
+                "placeholder": "",
+                "next": "checklist_degradacao_banda_4"
+            },
+            {
+                "id": "checklist_degradacao_banda_4",
+                "type": "choice",
+                "text": "Está testando isolado rede interna? Ou com circuito em produção?",
+                "options": [
+                    {
+                        "label": "Rede interna",
+                        "next": "checklist_degradacao_banda_5"
+                    },
+                    {
+                        "label": "Circuito em produção",
+                        "next": "checklist_degradacao_banda_5"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_degradacao_banda_5",
+                "type": "input",
+                "text": "Quando percebeu a limitição de banda? Desde a contratação? Após algum upgrade? Após alguma outra falha da Vivo? Após alguam intervenção interna por parte do cliente?",
+                "placeholder": "",
+                "next": "sel_segmento_degradacao"
+            },
+            {
+                "id": "sel_segmento_degradacao",
+                "type": "choice",
+                "text": "Degradação — qual o segmento?",
+                "options": [
+                    {
+                        "label": "GPON",
+                        "next": "FLUXO:fluxo_deg_gpon"
+                    },
+                    {
+                        "label": "SWT",
+                        "next": "FLUXO:fluxo_deg_swt"
+                    }
+                ]
+            },
+            {
+                "id": "checklist_fe_1",
+                "type": "input",
+                "text": "Quando site ou aplicação (questionar porta utilizada e IP do servidor da aplicação) não está acessando?",
+                "placeholder": "",
+                "next": "checklist_fe_2"
+            },
+            {
+                "id": "checklist_fe_2",
+                "type": "yesno",
+                "text": "Se o cliente possuir outro link, acessa a partir de outra operadora?",
+                "yes": "checklist_fe_3",
+                "no": "checklist_fe_3"
+            },
+            {
+                "id": "checklist_fe_3",
+                "type": "yesno",
+                "text": "Falha está ativa no momento?",
+                "yes": "checklist_fe_4",
+                "no": "checklist_fe_4"
+            },
+            {
+                "id": "checklist_fe_4",
+                "type": "input",
+                "text": "Reproduzir falha reportada pelo cliente no CPE - Realizar teste de Ping/Trace para IP mencionado",
+                "placeholder": "Reproduziu?",
+                "next": "checklist_fe_5"
+            },
+            {
+                "id": "checklist_fe_4",
+                "type": "input",
+                "text": "Quando percebeu a falha?",
+                "placeholder": "",
+                "next": "END:"
+            }
+        ]
+    }
+}

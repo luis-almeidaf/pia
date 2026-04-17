@@ -1,0 +1,204 @@
+{
+    "fluxo_deg_swt": {
+        "title": "Fluxo degradado SWT",
+        "version": "1.1",
+        "start": "deg_swt_start",
+        "steps": [
+            {
+                "id": "deg_swt_start",
+                "type": "message",
+                "text": "Degradado – SWT: início do diagnóstico.",
+                "next": "teste_ping_wan_cpe_swt"
+            },
+            {
+                "id": "teste_ping_wan_cpe_swt",
+                "type": "yesno",
+                "text": "Ping WAN/CPE está OK?",
+                "yes": "cpe_cliente_deg_swt",
+                "no": "cliente_posicao_deg_swt"
+            },
+            {
+                "id": "cpe_cliente_deg_swt",
+                "type": "yesno",
+                "text": "CPE cliente?",
+                "yes": "END:",
+                "no": "acesso_cpe_deg_swt_1"
+            },
+            {
+                "id": "acesso_cpe_deg_swt_1",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp_deg_swt_1",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_lan_arp_deg_swt_1",
+                "type": "yesno",
+                "text": "Verifique LAN cliente (UP/ARP) - Há quedas/TX de erros na interface LAN?",
+                "yes": "informar_falha_rede_interna_cliente_swt_1",
+                "no": "verificar_saturacao_1"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_swt_1",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_swt_2",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_saturacao_1",
+                "type": "yesno",
+                "text": "Saturação está ok?",
+                "yes": "informar_falha_rede_interna_cliente_swt_2",
+                "no": "teste_servico_deg_swt_1"
+            },
+            {
+                "id": "teste_servico_deg_swt_1",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Degradação?",
+                "yes": "cliente_posicao_deg_swt",
+                "no": "normalizou_cpe_deg_swt_1"
+            },
+            {
+                "id": "normalizou_cpe_deg_swt_1",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "cliente_posicao_deg_swt",
+                "type": "yesno",
+                "text": "Acesse a SWA/SHE/SWD - Localizou posição do cliente?",
+                "yes": "verificar_porta_conexao_swt",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_porta_conexao_swt",
+                "type": "yesno",
+                "text": "Verifique a porta de conexão com SWT cliente - Quedas/TX de erros?",
+                "yes": "END:",
+                "no": "acesso_swt_deg_swt_1"
+            },
+            {
+                "id": "acesso_swt_deg_swt_1",
+                "type": "yesno",
+                "text": "Acessou SWT ok?",
+                "yes": "verificar_quedas_tx_porta_conexao_rede_cpe",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_quedas_tx_porta_conexao_rede_cpe",
+                "type": "yesno",
+                "text": "Verifique quedas/TX de erros com porta de conexão rede e com CPE - Acessou SWT ok?",
+                "yes": "porta_sentido_rede_vivo",
+                "no": "END:"
+            },
+            {
+                "id": "porta_sentido_rede_vivo",
+                "type": "yesno",
+                "text": "Porta sentido Rede VIVO, está OK?",
+                "yes": "porta_conexao_cpe",
+                "no": "END:"
+            },
+            {
+                "id": "porta_conexao_cpe",
+                "type": "yesno",
+                "text": "Porta de conexão com o CPE, está OK?",
+                "yes": "verificar_saturacao_2",
+                "no": "solicitar_cliente_verificar_cabos"
+            },
+            {
+                "id": "solicitar_cliente_verificar_cabos",
+                "type": "yesno",
+                "text": "Cliente pode verificar cabos entre SWT e router?",
+                "yes": "normalizou_apos_verificacao",
+                "no": "END:"
+            },
+            {
+                "id": "normalizou_apos_verificacao",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_saturacao_2",
+                "type": "yesno",
+                "text": "Saturação está ok?",
+                "yes": "verificar_rede_metro_fusion",
+                "no": "contatar_cliente_informar_falha"
+            },
+            {
+                "id": "contatar_cliente_informar_falha",
+                "type": "yesno",
+                "text": "Contate o cliente e informe a falha - Cliente aceitou?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_rede_metro_fusion",
+                "type": "yesno",
+                "text": "Verifique Rede Metro/Fusion - Tunel Metro com queda recente?",
+                "yes": "END:",
+                "no": "acesso_cpe_deg_swt_2"
+            },
+            {
+                "id": "acesso_cpe_deg_swt_2",
+                "type": "yesno",
+                "text": "Acessar o CPE, autenticação OK? (Testar com todas as senhas)",
+                "yes": "verificar_lan_arp_deg_swt_2",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_lan_arp_deg_swt_2",
+                "type": "yesno",
+                "text": "Verifique LAN cliente (UP/ARP) - Há quedas/TX de erros na interface LAN?",
+                "yes": "informar_falha_rede_interna_cliente_swt_3",
+                "no": "verificar_saturacao_3"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_swt_3",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "verificar_saturacao_3",
+                "type": "yesno",
+                "text": "Saturação está ok?",
+                "yes": "informar_falha_rede_interna_cliente_swt_4",
+                "no": "teste_servico_deg_swt_2"
+            },
+            {
+                "id": "informar_falha_rede_interna_cliente_swt_4",
+                "type": "yesno",
+                "text": "Informe ao cliente falha na rede interna - Cliente aceitou?",
+                "yes": "END:",
+                "no": "END:"
+            },
+            {
+                "id": "teste_servico_deg_swt_2",
+                "type": "yesno",
+                "text": "Realize testes no serviço (IP dedicado, ping internet, VPN, ping outra ponta) - Testes ok?",
+                "yes": "normalizou_cpe_deg_swt_2",
+                "no": "END:"
+            },
+            {
+                "id": "normalizou_cpe_deg_swt_2",
+                "type": "yesno",
+                "text": "Cliente confirma normalização?",
+                "yes": "END:",
+                "no": "END:"
+            }
+        ]
+    }
+}
