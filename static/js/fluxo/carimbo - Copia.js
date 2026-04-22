@@ -1,6 +1,6 @@
 import carimbo from "./carimbos.js";
 
-const MAX_LOG = 4000;
+const MAX_LOG = 4000; alterar esse nome
 
 function buscaTextAreaLogs() {
   return Array.from(document.querySelectorAll(".carimbo-log-item"));
