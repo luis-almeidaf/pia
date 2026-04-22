@@ -67,12 +67,25 @@ const logs = { criarNovoTextArea, buscaLogsPreenchidos };
 
 export default logs;
 
+------------
 
-Uncaught (in promise) ReferenceError: textarea is not defined
-    criarNovoTextArea http://172.21.1.208:5010/static/js/carimbos/logs.js:60
-    showContainers http://172.21.1.208:5010/static/js/ui/ui.js:13
-    renderBdInfo http://172.21.1.208:5010/static/js/ui/ui.js:64
-    processaBd http://172.21.1.208:5010/static/js/index.js:33
-    async* http://172.21.1.208:5010/static/js/index.js:134
-    EventListener.handleEvent* http://172.21.1.208:5010/static/js/index.js:133
-    EventListener.handleEvent* http://172.21.1.208:5010/static/js/index.js:120
+
+  function atualizarBotaoCarimbo() {
+  const btnCarimbo = document.getElementById("btnCarimbo");
+  const algumExcedeu = buscaTextAreaLogs().some(
+    (ta) => ta.value.length > MAX_LOG
+  );
+  btnCarimbo.disabled = algumExcedeu;
+}
+
+
+function registrarInputLog(textarea, label, index) {
+  textarea.addEventListener("input", () => {
+    const length = textarea.value.length;
+    const excedeu = length > MAX_LOG;
+    label.textContent = `Log ${index} - Caracteres: ${length}/${MAX_LOG}`;
+    label.style.color = excedeu ? "red" : "";
+    if (excedeu) textAreaAtingiuOLimite(textarea, index);
+    atualizarBotaoCarimbo();
+  });
+}
